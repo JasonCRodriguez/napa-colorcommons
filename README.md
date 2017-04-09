@@ -13,7 +13,7 @@ The pertinent data we receive (from our Twilio server) is:
 
 Some of the trends we'd like to interpret are:
 
-    Total amount of texts []
+    Total amount of texts
     Top 5 Colors
     How many times “secret” was texted
     Peak use times of day / week 
@@ -21,15 +21,16 @@ Some of the trends we'd like to interpret are:
     Repeat users 
     Highly engaged users (over 15 texts)
     Clustering - are there clusters of numbers that occur within temporal proximity
-    any other trends you think would be interesting!
 
+## Other things to do
 
-## Total amount of texts []
-    Top 5 Colors
-    How many times “secret” was texted
-    Peak use times of day / week 
-    Unique users 
-    Repeat users 
-    Highly engaged users (over 15 texts)
-    Clustering - are there clusters of numbers that occur within temporal proximity
-    any other trends you think would be interesting!
+Determine the relationship between time, weather, ?, and usage.
+
+Plotting
+    - tools
+        - javascript: D3.js, chart.js, Google Charts
+        - python using seaborn, matplotlib, bokeh?
+    - content
+        - display time variance of usage (date, day of week, time)
+        - a plot of the most influential factors
+        - network diagrams with the user clusters
