@@ -2,6 +2,8 @@
 *.zip
 *.csv
 
+# ipython files
+.ipynb_checkpoints/
 
 #################
 ## Eclipse
