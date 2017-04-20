@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
-<canvas width="960" height="500"></canvas>
+<canvas width="1200" height="500"></canvas>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script>
 
@@ -24,13 +24,13 @@ function render() {
   context.clearRect(0, 0, width, height);
   context.lineJoin = "round";
   context.lineCap = "round";
-  context.lineWidth = 1.5;
+  context.lineWidth = 0.001;
   context.strokeStyle = "black";
   renderWalk(mainWalk);
 
   context.globalCompositeOperation = "multiply";
   context.lineWidth = 1;
-  for (var i = 0; i < mainWalk.length; i += 2) {
+  for (var i = 0; i < mainWalk.length; i += 5) {
     var branchStart = mainWalk[i],
         x0 = branchStart[0],
         y0 = branchStart[1];
@@ -39,7 +39,7 @@ function render() {
       var x1 = x0, y1 = y0;
       for (var k = 0, m = 20; k < m; ++k) {
         context.globalAlpha = (m - k - 1) / m;
-        var pieceWalk = randomWalk(x1, y1, 10),
+        var pieceWalk = randomWalk(x1, y1, 5),
             pieceEnd = pieceWalk[pieceWalk.length - 1];
         renderWalk(pieceWalk);
         x1 = pieceEnd[0];
@@ -48,6 +48,7 @@ function render() {
       context.globalAlpha = 1;
     }
   }
+  return(mainWalk)
 }
 
 function renderWalk(walk) {
@@ -65,8 +66,8 @@ function randomWalk(x0, y0, n) {
   points[0] = [x0, y0];
   for (i = 1; i < n; ++i) {
     points[i] = [
-      x0 += randomX() * 2,
-      y0 += randomY() * 2
+      x0 += randomX() * 5,
+      y0 += randomY() * 5
     ];
   }
   return points;
