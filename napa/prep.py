@@ -7,3 +7,4 @@ def read_data():
     df['datetime'] = pd.to_datetime(df.SentDate)
     df['date'] = [x.date() for x in df.datetime]
     df['weekday'] = [x.weekday() for x in df.datetime]
+

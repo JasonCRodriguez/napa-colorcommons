@@ -22,7 +22,7 @@ Some of the trends we'd like to interpret are:
     Highly engaged users (over 15 texts)
     Clustering - are there clusters of numbers that occur within temporal proximity
 
-## Other things to do
+## Other things to do for this project
 
 Determine the relationship between time, weather, ?, and usage.
 
