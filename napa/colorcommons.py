@@ -6,7 +6,7 @@ import random
 
 class UserTexts(object):
 
-    def __init__(self, data_file, remap_names=None, hash_id_table = None):
+    def __init__(self, data_file, remap_names=None, hash_id_table=None):
 
         df = pd.read_csv(data_file)
 
@@ -30,18 +30,6 @@ class UserTexts(object):
         if hash_id_table == None:
             self.hash_id_table = 'data/names1880.txt'
 
-
-    def print(self):
-        print(self.data)
-
-    def is_phonenumber(self, x):
-        return re.match('[0-9]{10}', x)
-
-    def hash_field(self):
-        baby_names_df = pd.read_csv(self.hash_id_table, names = ['baby_name', 'gender', 'ct'])
-        hashed_id = [self.cute_hash(x, baby_names_df) for x in self.data.From]
-        self.data.From = hashed_id
-
     def cute_hash(self, x, baby_names_df):
 
         hexhash = hashlib.md5(bytes(str(x), 'UTF8')).digest()
@@ -54,12 +42,20 @@ class UserTexts(object):
             id_name = baby_names_df[baby_names_df.gender == 'M'].iloc[hexhash[1]].baby_name 
             full_id = ''.join([id_name, suffix])
         return full_id 
-        
+
+    def heatmap(self):
+        pass
+
+    def hash_field(self):
+        baby_names_df = pd.read_csv(self.hash_id_table, names = ['baby_name', 'gender', 'ct'])
+        hashed_id = [self.cute_hash(x, baby_names_df) for x in self.data.From]
+        self.data.From = hashed_id
+
+    def save_data(self, save_path):
+        self.data.to_csv(save_path)
+
     def summary(self):
         pass
 
     def show_plot_options(self):
-        pass
-
-    def heatmap(self):
         pass
