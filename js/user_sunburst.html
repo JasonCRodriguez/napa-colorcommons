@@ -38,7 +38,7 @@ var svg = d3.select("body").append("svg")
   .append("g")
     .attr("transform", "translate(" + width / 2 + "," + (height / 2) + ")");
 
-d3.json("data/user.json", function(error, root) {
+d3.json("data/user2.json", function(error, root) {
   if (error) throw error;
   
   root = d3.hierarchy(root);
@@ -60,6 +60,8 @@ d3.json("data/user.json", function(error, root) {
       })
       .style("opacity", "0.9")
       .on("click", click)
+      .on("mouseover", hover)
+      .on("mouseout", hoverout)
     .append("title")
       .text(function(d) { return d.data.name + "\n" + "count: " + formatNumber(d.value); });
 });
@@ -75,6 +77,19 @@ function click(d) {
       })
     .selectAll("path")
       .attrTween("d", function(d) { return function() { return arc(d); }; });
+}
+
+function hover(d) {
+  svg.append("text")
+    .attr("x", d.clientX )
+    .attr("y", d.clientY )
+    .text(d.data.name);
+  console.log(d);
+}
+
+function hoverout(d) {
+  svg.select("text")
+    .remove();
 }
 
 d3.select(self.frameElement).style("height", height + "px");

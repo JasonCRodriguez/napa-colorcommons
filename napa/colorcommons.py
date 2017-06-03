@@ -124,6 +124,7 @@ class UserTexts(object):
 
             # Create month dict
             month_dict['name'] = str(month)
+            month_dict['id'] = 'Month'
             month_dict['children'] = day_list
             root_dict['children'].append(month_dict)
             

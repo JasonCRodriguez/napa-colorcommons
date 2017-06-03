@@ -21,7 +21,10 @@ var x = d3.scaleLinear()
 var y = d3.scaleSqrt()
     .range([0, radius]);
 
-var color = d3.scaleOrdinal(d3.schemeCategory20);
+var color = d3.scaleLinear()
+                            .domain([0, 31])
+                            .range(['#ffffff', '#000000'])
+;
 
 var partition = d3.partition();
 
@@ -43,25 +46,33 @@ d3.json("data/dates.json", function(error, root) {
   
   root = d3.hierarchy(root);
   root.sum(function(d) { return d.size; });
-  svg.selectAll("path")
+  var path = svg.selectAll("path")
       .data(partition(root).descendants())
-    .enter().append("path")
+      .enter();
+      
+  path.append("path")
+      .attr("id", function(d) { return "arc_"+d.data.name; })
+      .attr("class", "arc")
       .attr("d", arc)
       .style("fill", function(d) { 
         if (d.data.color){
           return d.data.color;
           }
-        else if(d.children) {
-          return color(d.data.name);
+        else if (d.data.name == 'Dates'){
+          return "#ffffff";
+          }
+        else if (d.data.id == 'Month'){
+          return "#ffff00";
           }
         else {
-          return color(d.parent.data.name);
-        }
+          return color(d.data.name);
+          }
       })
-      .style("opacity", "0.9")
       .on("click", click)
-    .append("title")
+      .on("hover", hover)
+      .append("title")
       .text(function(d) { return d.data.name + "\n" + "count: " + formatNumber(d.value); });
+
 });
 
 function click(d) {
@@ -78,5 +89,9 @@ function click(d) {
 }
 
 d3.select(self.frameElement).style("height", height + "px");
+
+function hover(d) {
+  console.log(d)
+}
 </script>
 
