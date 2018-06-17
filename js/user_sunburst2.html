@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <style>
+    body {
+      padding: 2rem;
+    }
+
+    svg {}
+
+    input {
+      width: 5rem;
+    }
+
+    #settings {
+      border: gray 1px solid;
+    }
+
+    span.badge {
+      margin-right: 1rem;
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+
+    #svgSettings {
+      margin-top: 5rem;
+    }
+  </style>
+</head>
+
+<h1>Color Commons</h1>
+<p>An interactive public art exhibit on the Boston Greenway created by
+  <a href='http://www.newamericanpublicart.com/'>New American Public Art</a>.</p>
+<span id="debug"></span>
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-6">
+        <svg></svg>
+      </div>
+      <div class="col-6">
+        <div id="userInfo" class="container-fluid">
+          <div class="row">
+            <div class="col-12">
+              <h3>Interactions <i>(Click Graph)</i></h3>
+            </div>
+          </div>
+          <div class="row">
+              <div class="col-3">
+                  <h4>Username</h4>
+              </div>
+              <div class="col-9">
+                  <h4>Colors and Counts</h3>
+              </div>
+          </div>
+          <div class="row">
+              <div id="usrName" class="col-3">
+                
+              </div>
+              <div id="usrColors" class="col-9">
+                
+              </div>
+          </div>
+        </div>
+
+        <div id="svgSettings" class="invisible container-fluid">
+          <div class="row">
+            <div class="col-12">
+              <h3>Settings <i>(ToDo)</i></h3>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-2">
+              <label for="svgWidth">Width</label>
+              <input type="number" id="svgWidth" value="650" size="4" maxlength="4" />
+            </div>
+            <div class="col-2">
+              <label for="svgHeight">Height</label>
+              <input type="number" id="svgHeight" value="650" size="4" maxlength="4" />
+            </div>
+            <div class="col-8">
+
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-12">
+              <button type="button" class="btn btn-default">Set</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <script>
+    $(function () {
+      //$('span#debug').text($('input#svgWidth').val());
+
+      // d3 logic goodness here
+      var width = parseInt($('input#svgWidth').val()),
+        height = parseInt($('input#svgHeight').val()),
+        radius = (Math.min(width, height) / 2) - 10;
+
+      var formatNumber = d3.format(',d');
+
+      var x = d3.scaleLinear()
+        .range([0, 2 * Math.PI]);
+
+      var y = d3.scaleSqrt()
+        .range([0, radius]);
+
+      var color = d3.scaleOrdinal(d3.schemeCategory20);
+
+      var partition = d3.partition();
+
+      var arc = d3.arc()
+        .startAngle(function (d) {
+          return Math.max(0, Math.min(2 * Math.PI, x(d.x0)));
+        })
+        .endAngle(function (d) {
+          return Math.max(0, Math.min(2 * Math.PI, x(d.x1)));
+        })
+        .innerRadius(function (d) {
+          return Math.max(0, y(d.y0));
+        })
+        .outerRadius(function (d) {
+          return Math.max(0, y(d.y1));
+        });
+
+
+      var svg = d3.select('svg')
+        .attr('width', width)
+        .attr('height', height)
+        .append('g')
+        .attr('transform', 'translate(' + width / 2 + ',' + (height / 2) + ')');
+
+      var popover = d3.select("body").append("div")	
+                      .attr("class", "tooltip")				
+                      .style("opacity", 0);
+
+      d3.json('data/user.json', function (error, root) {
+        if (error) throw error;
+
+        root = d3.hierarchy(root);
+        root.sum(function (d) {
+          return d.size;
+        });
+        svg.selectAll('path')
+          .data(partition(root).descendants())
+          .enter().append('path')
+          .attr('d', arc)
+          .style('fill', function (d) {
+            if (d.data.color) {
+              return d.data.color;
+            } else if (d.children) {
+              return color(d.data.name);
+            } else {
+              return color(d.parent.data.name);
+            }
+          })
+          .style('opacity', '0.9')
+          .on('click', click)
+          .on('mouseover', hover)
+          .on('mouseout', hoverout)
+          .append('title')
+          .text(function (d) {
+            //return d.data.name + '\n' + 'count: ' + formatNumber(d.value);
+          });
+      });
+
+      function click(d) {
+        console.log(d);
+        var username = '',
+            badges = '';
+        if (typeof d.data.children !== "undefined") {
+          if (d.data.name !== 'Users'){
+            username = d.data.name;
+            $.each(d.data.children, function(key,value) {
+              badges += '<span class="badge"'
+                          + ' style="background-color: ' + value.color + '"'
+                          + ' title="' + value.name + ' / ' + value.color + '"'
+                          + ' >' + value.size + '</span>';
+            });
+          }  
+        } else {
+          if (d.parent.data.name !== 'Users'){
+            username = d.parent.data.name;
+            badges += '<span class="badge"'
+                        + ' style="background-color: ' + d.data.color + '"'
+                        + ' title="' + d.data.name + ' / ' + d.data.color + '"'
+                        + ' >' + d.data.size + '</span>';
+          }
+        }
+        
+        $('#usrName').text(username);       
+        $('#usrColors').html(badges);  
+
+        svg.transition()
+          .duration(750)
+          .tween('scale', function () {
+            var xd = d3.interpolate(x.domain(), [d.x0, d.x1]),
+              yd = d3.interpolate(y.domain(), [d.y0, 1]),
+              yr = d3.interpolate(y.range(), [d.y0 ? 20 : 0, radius]);
+            return function (t) {
+              x.domain(xd(t));
+              y.domain(yd(t)).range(yr(t));
+            };
+          })
+          .selectAll('path')
+          .attrTween('d', function (d) {
+            return function () {
+              return arc(d);
+            };
+          });        
+      }
+
+      function hover(d) {
+        // svg.append('text')
+        //   .attr('x', d.clientX)
+        //   .attr('y', d.clientY)
+        //   .text(d.data.name);
+        // console.log(d);
+      }
+
+      function hoverout(d) {
+        svg.select('text')
+          .remove();
+      }
+
+      d3.select(self.frameElement)
+        .style('height', height + 'px');
+
+    });
+  </script>
+</body>
+
+</html>
